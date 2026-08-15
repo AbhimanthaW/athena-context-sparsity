@@ -1,0 +1,13 @@
+{
+  "seed": 42,
+  "train_fraction": 0.8,
+  "validation_fraction": 0.1,
+  "test_fraction": 0.1,
+  "training_subset_fractions": [0.05, 0.1, 0.2, 0.4, 0.8, 1.0],
+  "orders": [1, 2, 3, 4, 5, 6],
+  "alphas": [0.001, 0.01, 0.1, 1.0],
+  "min_token_frequency": 2,
+  "training_block_tokens": 1000,
+  "max_history_length": 5,
+  "log_base": "e"
+}
