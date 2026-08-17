@@ -1344,3 +1344,80 @@ The Shakespeare interpolation robustness analysis is frozen.
 
 No further model or hyperparameter modifications will be made on the
 Shakespeare test set unless a demonstrable implementation error is found.
+
+## 2026-08-17 — Pilot study frozen after literature review
+
+### Status
+
+The Shakespeare context-sparsity study is complete and frozen.
+
+The experimental pipeline, primary test evaluation, bootstrap uncertainty
+analysis, interpolation robustness analysis, and associated figures/results
+have been completed and committed.
+
+### Literature-review outcome
+
+A targeted review of classical and modern n-gram language-model literature
+showed that the broad phenomena motivating the original study are already
+well established, including:
+
+- degradation of high-order n-gram estimates under sparse finite data;
+- dependence of useful model order on training-set size;
+- Good-Turing singleton/frequency-of-frequency reasoning;
+- backoff and lower-order interpolation for sparse contexts;
+- variable-order and mixed-order language models;
+- estimator dependence in the ability to exploit longer contexts.
+
+Therefore the broad claim that "more context can hurt under finite data" is
+not treated as a novel contribution.
+
+### Pilot findings retained
+
+The completed study nevertheless produced several useful observations:
+
+1. Under validation-selected fixed-order add-alpha estimation, all 30
+   adjacent order increases increased held-out cross-entropy.
+
+2. These 30 positive marginal-loss estimates remained positive under the
+   primary paired moving-block bootstrap.
+
+3. Training-only singleton-history rate strongly tracked held-out
+   unseen-history occurrence rate.
+
+4. The preregistered hypothesis that larger singleton-history rate would
+   correspond to larger marginal context penalty was not supported.
+
+5. Training-set size and singleton-history rate were strongly coupled in the
+   nested-subset design, preventing clean identification of predictive
+   information from singleton rate independent of training size.
+
+6. Validation-selected lower-order interpolation eliminated all observed
+   fixed-order penalties. Under the primary bootstrap, 26 of 27 nonzero
+   interpolation conditions showed clear benefit, three additional
+   conditions selected exact lower-order fallback, and no condition showed
+   clear harm.
+
+### Interpretation
+
+The study is retained as a completed pilot / technical study rather than
+developed immediately into a flagship research paper.
+
+Its main value is methodological and diagnostic: it demonstrated that
+training-history occupancy can closely track context coverage without
+thereby predicting the marginal value of additional context, and that the
+apparent fixed-order context penalties were strongly estimator-dependent.
+
+### Follow-up direction
+
+Future work should begin with novelty reconnaissance before implementation.
+
+Two candidate directions motivated by this pilot are:
+
+1. predicting marginal context value at fixed training size and model order
+   using variation across independently sampled training sets;
+
+2. predicting the optimal amount of higher-order interpolation from
+   training-only context-occupancy statistics.
+
+No further experiments will be performed on the Shakespeare test set unless
+an implementation error is discovered.
