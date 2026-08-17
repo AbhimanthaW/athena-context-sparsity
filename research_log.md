@@ -467,3 +467,255 @@ The next stage is to evaluate all preregistered combinations of training size,
 model order, and add-\(\alpha\) smoothing strength on validation data only,
 then freeze the selected smoothing parameter for every \((m,n)\) condition
 before test evaluation.
+
+## 2026-08-17 — Initial validation sweep
+
+### Objective
+
+Evaluate the preregistered add-alpha smoothing grid using validation data only
+for every combination of training-corpus size and n-gram order.
+
+The test partition remained untouched.
+
+### Experimental grid
+
+Training fractions:
+
+\[
+m\in\{5\%,10\%,20\%,40\%,80\%,100\%\}
+\]
+
+Model orders:
+
+\[
+n\in\{1,2,3,4,5,6\}
+\]
+
+Initial smoothing grid:
+
+\[
+\alpha\in\{0.001,0.01,0.1,1.0\}.
+\]
+
+Total validation conditions:
+
+\[
+6\times6\times4=144.
+\]
+
+### Result integrity
+
+All 144 conditions completed successfully.
+
+Each model was evaluated on exactly:
+
+\[
+98{,}839
+\]
+
+shared validation target tokens.
+
+The sweep produced 36 provisional hyperparameter selections, one for every
+\((m,n)\) condition.
+
+No test-set performance was evaluated.
+
+### Preliminary methodological observations
+
+Training singleton-history rate behaved qualitatively as expected:
+
+- \(S_k\) increased strongly with history length;
+- \(S_k\) generally decreased as training size increased.
+
+Validation unseen-history rate \(U_k\) showed a similar qualitative pattern.
+
+These observations are treated as validation-stage sanity checks rather than
+final hypothesis tests.
+
+### Hyperparameter-grid issue
+
+The initial grid did not adequately bracket the validation optima.
+
+Most models with \(n\geq4\) selected:
+
+\[
+\alpha=0.001,
+\]
+
+the smallest tested value.
+
+Several unigram conditions selected:
+
+\[
+\alpha=1.0,
+\]
+
+the largest tested value.
+
+Therefore the current selections cannot yet be treated as properly frozen
+validation optima because better values may lie outside the tested range.
+
+### Decision
+
+Before any test evaluation, expand the validation-only smoothing grid to:
+
+\[
+\alpha\in
+\{0.0001,0.001,0.01,0.1,1.0,10.0\}.
+\]
+
+The validation sweep will be rerun using this expanded grid.
+
+If the selected values are no longer systematically clipped at the grid
+boundaries, the resulting hyperparameters will be frozen and committed before
+the test set is evaluated.
+
+## 2026-08-17 — Expanded validation sweep and hyperparameter freeze
+
+### Objective
+
+Resolve the boundary-selection problem identified during the initial
+validation sweep before any use of the test partition.
+
+The original smoothing grid was:
+
+\[
+\alpha\in\{0.001,0.01,0.1,1.0\}.
+\]
+
+Because several validation-optimal values occurred at the boundaries of this
+grid, it was expanded before test evaluation.
+
+### Expanded smoothing grid
+
+The revised validation-only grid was:
+
+\[
+\alpha\in
+\{0.0001,0.001,0.01,0.1,1.0,10.0\}.
+\]
+
+Across:
+
+\[
+6
+\]
+
+training sizes,
+
+\[
+6
+\]
+
+model orders, and
+
+\[
+6
+\]
+
+smoothing strengths, the expanded sweep evaluated:
+
+\[
+6\times6\times6=216
+\]
+
+validation conditions.
+
+### Validation integrity
+
+All 216 conditions completed successfully.
+
+Each condition was evaluated on exactly:
+
+\[
+N_{\mathrm{val}}=98{,}839
+\]
+
+shared validation target positions.
+
+The full sweep produced:
+
+- 216 validation-result rows;
+- 36 selected \((m,n)\) hyperparameter configurations.
+
+The test partition remained completely untouched.
+
+The full unit-test suite was also rerun before the expanded experiment:
+
+\[
+23/23
+\]
+
+tests passed.
+
+### Selected smoothing pattern
+
+The expanded grid produced a stable order-dependent pattern.
+
+Broadly:
+
+- unigram models preferred \(\alpha\approx1\);
+- bigram models preferred \(\alpha=0.01\);
+- trigram models preferred \(\alpha=0.001\) or \(0.01\);
+- four-gram and five-gram models preferred \(\alpha=0.001\);
+- six-gram models preferred \(\alpha=0.0001\).
+
+The previous upper-boundary issue was therefore resolved.
+
+Six-gram models continued to select the smallest tested value,
+
+\[
+\alpha=0.0001.
+\]
+
+However, the validation improvement relative to
+
+\[
+\alpha=0.001
+\]
+
+was less than approximately
+
+\[
+0.001\text{ nats/token}
+\]
+
+for every training-size condition.
+
+Because this difference is very small and continued expansion would provide
+little practical information while increasing hyperparameter search
+flexibility, the smoothing grid will not be expanded further.
+
+### Decision
+
+The expanded grid is frozen as the final smoothing search space:
+
+\[
+\boxed{
+\alpha\in
+\{0.0001,0.001,0.01,0.1,1.0,10.0\}
+}
+\]
+
+For every training fraction \(m\) and model order \(n\), the selected
+hyperparameter is:
+
+\[
+\alpha^*(m,n)
+=
+\arg\min_{\alpha}
+H_{\mathrm{val}}(m,n,\alpha).
+\]
+
+These 36 hyperparameter selections are now frozen.
+
+No changes to smoothing parameters, model orders, training fractions,
+vocabulary construction, tokenisation, or evaluation alignment will be made
+in response to subsequent test-set performance.
+
+### Next step
+
+Commit the frozen validation results and selected hyperparameters.
+
+Only after this commit will the test partition be evaluated using exactly one
+preselected model for each of the 36 \((m,n)\) conditions.
