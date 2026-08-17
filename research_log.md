@@ -1110,3 +1110,104 @@ improves or preserves performance on the held-out test sequence.
 The 30 interpolation weights are frozen.
 
 No interpolation weights will be modified in response to test performance.
+
+## 2026-08-17 — Locked interpolation robustness test
+
+### Objective
+
+Evaluate the 30 validation-selected lower-order interpolation weights on the
+held-out test sequence without any test-driven changes.
+
+The interpolated model for transition \(n-1\rightarrow n\) was
+
+\[
+q_{\lambda,n}
+=
+(1-\lambda)q_{n-1}
++
+\lambda q_n,
+\]
+
+where the component models retained their previously frozen add-alpha
+parameters and lambda was selected using validation data only.
+
+### Frozen artifacts
+
+Primary hyperparameter SHA-256:
+
+`a04a261d18fa30c35e5291759bc751802ccddb75d260c22e639b71d5ef7a1d19`
+
+Interpolation-selection SHA-256:
+
+`2e7fc62042dab3a024194555ff2f7ebb91a1efd81c5cf3b8ad43676f1029587c`
+
+Each interpolated model was evaluated on the same:
+
+\[
+N_{\mathrm{test}}=98{,}840
+\]
+
+held-out target positions used in the primary experiment.
+
+### Main robustness result
+
+Under the original fixed-order add-alpha models:
+
+\[
+30/30
+\]
+
+order increases had:
+
+\[
+\Delta H_n>0.
+\]
+
+After validation-selected lower-order interpolation:
+
+- 27/30 transitions had \(\Delta H_n^{\mathrm{interp}}<0\);
+- 3/30 transitions had \(\Delta H_n^{\mathrm{interp}}=0\);
+- 0/30 transitions had \(\Delta H_n^{\mathrm{interp}}>0\).
+
+The three exact-zero transitions corresponded to validation selections with
+
+\[
+\lambda=0,
+\]
+
+so the interpolated model was exactly identical to the lower-order model in
+those cases.
+
+Interpolation improved test cross-entropy relative to the original
+higher-order fixed-order model in:
+
+\[
+30/30
+\]
+
+conditions.
+
+### Interpretation
+
+The universal generalisation reversals observed in the primary fixed-order
+experiment are therefore not robust to estimator choice.
+
+Higher-order context was harmful when sparse higher-order models were forced
+to predict using fixed-order add-alpha smoothing, but validation-selected
+lower-order interpolation either improved on the lower-order baseline or
+reduced exactly to it in every tested condition.
+
+This suggests that the original reversals primarily reflect finite-sample
+estimation and sparse-context handling rather than evidence that additional
+context itself is intrinsically harmful.
+
+### Remaining uncertainty
+
+Several interpolated improvements are very small, particularly for the
+highest-order transitions.
+
+The preplanned next step is therefore paired moving-block bootstrap
+uncertainty analysis of the frozen interpolated loss differences using the
+same bootstrap design as the primary analysis.
+
+No interpolation weights or other experimental choices will be modified.
