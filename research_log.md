@@ -158,3 +158,312 @@ No main experimental results have been inspected.
 
 The next stage is correctness validation with manually verifiable unit tests
 before any validation sweep or test-set evaluation is permitted.
+
+## 2026-08-17 — Stage 5 correctness validation
+
+### Objective
+
+Validate the preprocessing, n-gram estimation, occupancy-statistics, and
+held-out evaluation pipeline before running experiments on the Shakespeare
+corpus.
+
+### Validation performed
+
+A pytest suite was implemented covering:
+
+- deterministic tokenisation
+- training-only vocabulary construction
+- `<UNK>` mapping
+- deterministic block shuffling
+- nested training subsets
+- preservation of artificial block boundaries
+- manually verified n-gram counts
+- reset-on-fit behaviour
+- add-alpha probability normalisation
+- uniform prediction for unseen histories
+- occupancy statistics \(N_k\), \(T_k\), \(f_1^{(k)}\), \(S_k\), and \(D_k\)
+- held-out cross-entropy
+- perplexity
+- unseen-history rate \(U_k\)
+- identical held-out target positions for \(n=1,\ldots,6\)
+
+### Result
+
+All 23 unit tests passed.
+
+\[
+23/23 \text{ tests passed}
+\]
+
+No experimental held-out results have yet been inspected.
+
+### Decision
+
+The baseline implementation is considered sufficiently validated to begin
+corpus-level sanity checks and preliminary model runs.
+
+Any later changes to core preprocessing, counting, probability estimation,
+or evaluation logic must be documented and followed by rerunning the full
+test suite.
+
+## 2026-08-17 — Corpus preprocessing sanity check
+
+### Objective
+
+Verify the corpus-level outputs of the frozen preprocessing pipeline before
+training any experimental language models.
+
+### Corpus statistics
+
+Total tokenised corpus size:
+
+\[
+N = 988{,}444
+\]
+
+Sequential split:
+
+- Training: 790,755 tokens
+- Validation: 98,844 tokens
+- Test: 98,845 tokens
+
+This corresponds approximately to the preregistered 80/10/10 split.
+
+### Vocabulary
+
+The vocabulary was constructed exclusively from the full training partition
+using minimum training frequency:
+
+\[
+C(w) \geq 2.
+\]
+
+Frozen vocabulary size:
+
+\[
+|V| = 13{,}938
+\]
+
+including `<UNK>`.
+
+### Unknown-token rates
+
+- Training: 1.0419%
+- Validation: 5.3731%
+- Test: 4.3715%
+
+The higher held-out `<UNK>` rates are expected because the vocabulary is
+derived exclusively from training data and the corpus is split
+sequentially. No vocabulary information from validation or test was used.
+
+### Training blocks
+
+The 790,755-token training partition produced 791 training blocks using an
+approximately 1,000-token block size.
+
+Nested training subsets:
+
+| Fraction | Blocks | Tokens |
+|---|---:|---:|
+| 5% | 40 | 40,000 |
+| 10% | 79 | 79,000 |
+| 20% | 158 | 158,000 |
+| 40% | 316 | 316,000 |
+| 80% | 633 | 632,755 |
+| 100% | 791 | 790,755 |
+
+The 80% subset contains the final partial 755-token block because blocks were
+shuffled before nested subsets were selected.
+
+### Assessment
+
+The corpus statistics are internally consistent and no obvious preprocessing
+failure was detected.
+
+The validation and test partitions exhibit higher `<UNK>` rates than the
+training partition, which will be retained rather than adjusted because
+changing the vocabulary using held-out data would introduce leakage.
+
+### Next step
+
+Run a single end-to-end smoke experiment using:
+
+\[
+m=20\%,\qquad n=3,\qquad \alpha=0.1
+\]
+
+before implementing the full validation sweep.
+
+## 2026-08-17 — Real-data smoke test
+
+### Objective
+
+Verify the complete validated n-gram pipeline on one real Shakespeare model
+before beginning the full validation experiment.
+
+This run was intended only as an implementation and data sanity check.
+It was not used to select hyperparameters or evaluate the research hypotheses.
+
+### Condition
+
+The preregistered smoke-test condition was:
+
+\[
+m=20\%,\qquad n=3,\qquad \alpha=0.1.
+\]
+
+Therefore the history length was:
+
+\[
+k=n-1=2.
+\]
+
+Training tokens:
+
+\[
+158{,}000.
+\]
+
+Validation tokens:
+
+\[
+98{,}844.
+\]
+
+### Training occupancy
+
+The trigram training subset produced:
+
+\[
+N_2=157{,}684
+\]
+
+total history occurrences,
+
+\[
+T_2=85{,}635
+\]
+
+distinct observed histories, and
+
+\[
+f_1^{(2)}=67{,}647
+\]
+
+singleton histories.
+
+Therefore:
+
+\[
+S_2
+=
+\frac{f_1^{(2)}}{N_2}
+=
+0.429004.
+\]
+
+The distinct-history rate was:
+
+\[
+D_2
+=
+\frac{T_2}{N_2}
+=
+0.543080.
+\]
+
+### Validation evaluation
+
+Held-out validation cross-entropy was:
+
+\[
+H_{\mathrm{val}}
+=
+9.148831
+\text{ nats/token}.
+\]
+
+Validation perplexity was:
+
+\[
+PP_{\mathrm{val}}
+=
+9403.445376.
+\]
+
+The actual validation unseen-history occurrence rate was:
+
+\[
+U_2
+=
+0.437995.
+\]
+
+The evaluator scored:
+
+\[
+N_{\mathrm{eval}}
+=
+98{,}839
+\]
+
+target tokens, exactly matching the expected shared-target evaluation count:
+
+\[
+98{,}844-5=98{,}839.
+\]
+
+### Manual inspection
+
+The most common inspected histories and their successors were linguistically
+and structurally plausible.
+
+Examples included:
+
+- `in the`
+- `i am`
+- `i have`
+
+with plausible successor distributions such as `castle`, `palace`, `a`,
+`not`, and `been`.
+
+No evidence of artificial cross-block n-grams, malformed token IDs, or
+incorrect history construction was observed.
+
+### Sanity assessment
+
+All real-data invariants passed:
+
+- \(0 \leq S_2 \leq 1\)
+- \(0 \leq D_2 \leq 1\)
+- \(0 \leq U_2 \leq 1\)
+- cross-entropy was finite
+- perplexity was finite
+- held-out target count was correct
+- inspected histories and successors were plausible
+
+The observed numerical proximity between
+
+\[
+S_2=0.429004
+\]
+
+and
+
+\[
+U_2=0.437995
+\]
+
+is noted but is not interpreted as evidence for the research hypothesis
+because this was a single preregistered smoke-test condition.
+
+### Decision
+
+The real-data pipeline is approved for the full validation sweep.
+
+The test partition remains untouched.
+
+The next stage is to evaluate all preregistered combinations of training size,
+model order, and add-\(\alpha\) smoothing strength on validation data only,
+then freeze the selected smoothing parameter for every \((m,n)\) condition
+before test evaluation.
