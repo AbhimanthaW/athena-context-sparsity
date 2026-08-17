@@ -1,0 +1,32 @@
+{
+  "H1": {
+    "approximately_zero_delta_H": 0,
+    "fraction_positive": 1.0,
+    "maximum_delta_H": 1.7528544880985084,
+    "minimum_delta_H": 0.0055143481123316,
+    "n_transitions": 30,
+    "negative_delta_H": 0,
+    "positive_delta_H": 30
+  },
+  "H2": {
+    "all_nontrivial_history_lengths_nonincreasing_with_training_size": true,
+    "all_training_sizes_nondecreasing_with_k": true
+  },
+  "H3": {
+    "pooled_MAE_D_vs_U": 0.02736582859626643,
+    "pooled_MAE_S_vs_U": 0.019945729223113384,
+    "pooled_RMSE_D_vs_U": 0.04007005624945516,
+    "pooled_RMSE_S_vs_U": 0.024363398047015046,
+    "pooled_secondary_rho_D_vs_U": 0.9951056729699665,
+    "pooled_secondary_rho_S_vs_U": 0.9951056729699665
+  },
+  "H4": {
+    "important_interpretation": "Transition-specific correlations are primary. Training size and S_k are strongly coupled, so these results do not identify predictive information from S_k independent of training size.",
+    "median_transition_rho_S_vs_delta_H": -1.0,
+    "pooled_secondary_rho_D_vs_delta_H": -0.7414905450500555,
+    "pooled_secondary_rho_S_vs_delta_H": -0.7414905450500555,
+    "pooled_secondary_rho_U_vs_delta_H": -0.7388209121245829
+  },
+  "methodological_caveat": "S_k varies systematically with training size. The current experiment measures association between S_k and Delta H within fixed order transitions across training sizes, but does not identify predictive information from S_k independent of training size.",
+  "statistical_note": "Naive Spearman p-values are not reported because observations across training sizes are derived from nested training subsets and therefore are dependent."
+}

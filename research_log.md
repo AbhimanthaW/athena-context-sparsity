@@ -802,3 +802,80 @@ The test set is now considered consumed for the primary experiment.
 
 No subsequent methodological or hyperparameter changes will be made in
 response to these test results.
+
+### H3 calibration against held-out unseen-history rate
+
+Although \(S_k\) and the distinct-history baseline \(D_k\) produced identical
+Spearman rank correlations with \(U_k\), they differed in numerical
+calibration.
+
+Across all 30 nontrivial \((m,k)\) conditions:
+
+\[
+\operatorname{MAE}(S_k,U_k)=0.01995
+\]
+
+compared with:
+
+\[
+\operatorname{MAE}(D_k,U_k)=0.02737.
+\]
+
+Similarly:
+
+\[
+\operatorname{RMSE}(S_k,U_k)=0.02436
+\]
+
+compared with:
+
+\[
+\operatorname{RMSE}(D_k,U_k)=0.04007.
+\]
+
+The advantage of \(S_k\) was concentrated primarily at shorter history
+lengths \(k=1,2\). At higher history lengths \(k=3,4,5\), \(D_k\) was
+numerically closer to the held-out unseen-history rate.
+
+Therefore the evidence supports strong coverage-tracking ability for both
+training-only occupancy diagnostics, with better pooled calibration for
+\(S_k\), but does not support claiming that singleton-history rate uniquely
+dominates the simpler distinct-history baseline.
+
+### H4 final primary result
+
+Transition-specific Spearman correlations between training-only
+singleton-history rate and marginal held-out loss were:
+
+\[
+\rho_{1\to2}=1.000
+\]
+
+\[
+\rho_{2\to3}=-0.943
+\]
+
+\[
+\rho_{3\to4}=-1.000
+\]
+
+\[
+\rho_{4\to5}=-1.000
+\]
+
+\[
+\rho_{5\to6}=-1.000.
+\]
+
+The median transition-specific correlation was:
+
+\[
+\boxed{-1.000}.
+\]
+
+This is opposite to the preregistered directional expectation for four of
+five transitions.
+
+Because training size and \(S_k\) are nearly monotonically coupled within
+each transition, these correlations do not establish predictive information
+from \(S_k\) beyond training-set size.

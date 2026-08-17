@@ -1,0 +1,6 @@
+from_order,to_order,history_length,n_observations,rho_S_vs_delta_H,rho_D_vs_delta_H,rho_U_vs_delta_H,rho_training_size_vs_delta_H
+1,2,1,6,1.0,1.0,1.0,-1.0
+2,3,2,6,-0.942857142857143,-0.942857142857143,-0.942857142857143,0.942857142857143
+3,4,3,6,-1.0,-1.0,-1.0,1.0
+4,5,4,6,-1.0,-1.0,-1.0,1.0
+5,6,5,6,-1.0,-1.0,-1.0,1.0
