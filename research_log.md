@@ -719,3 +719,86 @@ Commit the frozen validation results and selected hyperparameters.
 
 Only after this commit will the test partition be evaluated using exactly one
 preselected model for each of the 36 \((m,n)\) conditions.
+
+## 2026-08-17 — Locked primary test evaluation
+
+### Objective
+
+Evaluate the final validation-selected n-gram models on the held-out test
+partition exactly once, without any further hyperparameter selection.
+
+### Frozen experimental state
+
+The final smoothing parameters were selected using validation data only and
+committed before test evaluation.
+
+SHA-256 of the frozen hyperparameter-selection file:
+
+`a04a261d18fa30c35e5291759bc751802ccddb75d260c22e639b71d5ef7a1d19`
+
+The test evaluation used exactly one frozen smoothing parameter for each of
+the 36 combinations of training size and n-gram order.
+
+### Test evaluation
+
+Number of final model conditions:
+
+\[
+36
+\]
+
+Shared held-out target positions per model:
+
+\[
+N_{\mathrm{test}}=98{,}840.
+\]
+
+All models were evaluated on exactly the same target positions.
+
+No hyperparameters or methodological choices were changed after observing
+test performance.
+
+### Transition dataset
+
+For every training size, consecutive model orders were compared using
+
+\[
+\Delta H_n
+=
+H_n-H_{n-1}.
+\]
+
+With six training sizes and five order transitions, this produced:
+
+\[
+6\times5=30
+\]
+
+transition observations.
+
+### Initial structural observation
+
+All 30 observed transitions had
+
+\[
+\Delta H_n>0.
+\]
+
+Thus, under the tested fixed-order add-alpha estimator, every increase in
+model order increased held-out cross-entropy for the corresponding test
+condition.
+
+This observation will be analysed formally in the next stage rather than
+used to modify the experimental methodology.
+
+### Data integrity
+
+The final outputs were written to:
+
+- `results/main_results.csv`
+- `results/transitions.csv`
+
+The test set is now considered consumed for the primary experiment.
+
+No subsequent methodological or hyperparameter changes will be made in
+response to these test results.
