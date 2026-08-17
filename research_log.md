@@ -1017,3 +1017,96 @@ The uncertainty analysis is frozen.
 The next stage will test whether the observed reversals remain under a
 preplanned lower-order interpolation estimator, addressing the possibility
 that the result is specific to fixed-order add-alpha smoothing.
+
+## 2026-08-17 — Validation-selected lower-order interpolation
+
+### Objective
+
+Test whether the generalisation reversals observed under fixed-order
+add-alpha estimation are sensitive to using lower-order interpolation.
+
+For each transition
+
+\[
+n-1\rightarrow n,
+\]
+
+the interpolated distribution is
+
+\[
+q_{\lambda,n}
+=
+(1-\lambda)q_{n-1}
++
+\lambda q_n,
+\]
+
+where \(\lambda\) is the weight assigned to the higher-order model.
+
+The component models retained their previously frozen validation-selected
+add-alpha smoothing parameters.
+
+### Frozen interpolation grid
+
+The validation-only interpolation grid was:
+
+\[
+\lambda\in
+\{0.0,0.1,0.2,\ldots,0.9,1.0\}.
+\]
+
+Across six training sizes and five order transitions this produced:
+
+\[
+6\times5\times11=330
+\]
+
+validation conditions.
+
+Every condition was evaluated on exactly:
+
+\[
+N_{\mathrm{val}}=98{,}839
+\]
+
+shared validation target positions.
+
+The test set was not evaluated during this stage.
+
+### Selection
+
+One lambda was selected for each of the 30
+(training-size, order-transition) conditions by minimum validation
+cross-entropy.
+
+Exact ties were resolved in favor of the smaller higher-order weight.
+
+Selected-weight distribution:
+
+- \(\lambda=0\): 3/30
+- \(0<\lambda<1\): 27/30
+- \(\lambda=1\): 0/30
+
+Thus validation never preferred using the higher-order model alone.
+
+The selected interpolation artifact has SHA-256:
+
+`2e7fc62042dab3a024194555ff2f7ebb91a1efd81c5cf3b8ad43676f1029587c`
+
+### Interpretation note
+
+Because lambda=0 was included in the candidate grid, the selected
+interpolated model cannot be worse than the lower-order model on the same
+validation data.
+
+Therefore validation improvements relative to the lower-order model are a
+model-selection property and are not treated as evidence of generalisation.
+
+The relevant robustness question is whether validation-selected interpolation
+improves or preserves performance on the held-out test sequence.
+
+### Decision
+
+The 30 interpolation weights are frozen.
+
+No interpolation weights will be modified in response to test performance.
