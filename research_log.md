@@ -1211,3 +1211,136 @@ uncertainty analysis of the frozen interpolated loss differences using the
 same bootstrap design as the primary analysis.
 
 No interpolation weights or other experimental choices will be modified.
+
+## 2026-08-17 — Interpolation robustness uncertainty analysis
+
+### Objective
+
+Quantify uncertainty in the test-set performance of the frozen
+validation-selected interpolated models.
+
+For each transition, paired per-target differences were defined as
+
+\[
+d_t =
+\ell_{\mathrm{interp},t}
+-
+\ell_{n-1,t}.
+\]
+
+Thus:
+
+\[
+\Delta H_n^{\mathrm{interp}} < 0
+\]
+
+indicates that the validation-selected interpolation improves upon the
+lower-order model.
+
+The same previously frozen paired circular moving-block bootstrap design was
+used:
+
+- seed: 42;
+- replicates: 5,000;
+- primary block length: 1,000 targets;
+- sensitivity block lengths: 500 and 2,000;
+- percentile confidence level: 95%.
+
+No interpolation weights or model hyperparameters were changed.
+
+### Primary bootstrap result
+
+At the primary block length
+
+\[
+L=1000,
+\]
+
+26/30 interpolation transitions had 95% bootstrap intervals entirely below
+zero.
+
+Four intervals contained zero.
+
+Three of these four corresponded exactly to validation selections with
+
+\[
+\lambda=0,
+\]
+
+for which the interpolated model is mathematically identical to the
+lower-order model and therefore
+
+\[
+\Delta H_n^{\mathrm{interp}}=0
+\]
+
+by construction.
+
+The only nonzero primary effect whose 95% interval contained zero was the
+10% training condition for the \(5\to6\) transition.
+
+Therefore, among the 27 conditions where validation selected a nonzero
+higher-order contribution:
+
+\[
+26/27
+\]
+
+had primary 95% intervals entirely below zero.
+
+No primary bootstrap interval was entirely above zero.
+
+### Block-length sensitivity
+
+For
+
+\[
+L=500,
+\]
+
+the qualitative result was identical to the primary analysis:
+
+- 26/30 intervals entirely below zero;
+- 4/30 contained zero;
+- 0/30 entirely above zero.
+
+For the more conservative
+
+\[
+L=2000,
+\]
+
+the result was:
+
+- 23/30 intervals entirely below zero;
+- 7/30 contained zero;
+- 0/30 entirely above zero.
+
+The additional uncertainty at the longest block length was concentrated
+primarily in the \(5\to6\) transition, where observed improvements were
+already extremely small.
+
+### Interpretation
+
+The strong fixed-order generalisation reversals are not robust to estimator
+choice.
+
+When higher-order statistics are combined with lower-order models using
+validation-selected interpolation, no tested transition shows reliable
+evidence that additional context harms held-out performance.
+
+Instead, most transitions show reproducible improvements, while the sparsest
+highest-order transitions provide either extremely small gains or no
+detectable gain.
+
+This supports an interpretation in which the original reversals arise from
+finite-sample estimation difficulty and inadequate handling of sparse
+contexts rather than from additional contextual information itself being
+intrinsically harmful.
+
+### Decision
+
+The Shakespeare interpolation robustness analysis is frozen.
+
+No further model or hyperparameter modifications will be made on the
+Shakespeare test set unless a demonstrable implementation error is found.
