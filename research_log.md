@@ -879,3 +879,141 @@ five transitions.
 Because training size and \(S_k\) are nearly monotonically coupled within
 each transition, these correlations do not establish predictive information
 from \(S_k\) beyond training-set size.
+
+## 2026-08-17 — Paired block-bootstrap uncertainty analysis
+
+### Objective
+
+Quantify uncertainty in the 30 observed marginal held-out loss differences
+
+\[
+\Delta H_n = H_n-H_{n-1}
+\]
+
+without changing any frozen models or hyperparameters.
+
+Because adjacent models were evaluated on exactly the same held-out target
+positions, uncertainty was estimated from paired per-target loss differences:
+
+\[
+d_t =
+\ell_{n,t}-\ell_{n-1,t}.
+\]
+
+### Frozen design
+
+The bootstrap design was committed before intervals were inspected.
+
+Primary configuration:
+
+- method: paired circular moving-block bootstrap;
+- random seed: 42;
+- bootstrap replicates: 5,000;
+- primary block length: 1,000 held-out target positions;
+- confidence level: 95%;
+- sensitivity block lengths: 500 and 2,000.
+
+The frozen hyperparameter artifact was verified against SHA-256:
+
+`a04a261d18fa30c35e5291759bc751802ccddb75d260c22e639b71d5ef7a1d19`
+
+All reconstructed per-target losses reproduced the previously frozen
+test cross-entropies and transition-level Delta H values before
+bootstrapping.
+
+### Primary result
+
+For the primary block length:
+
+\[
+L=1000,
+\]
+
+all:
+
+\[
+30/30
+\]
+
+95% percentile bootstrap intervals were entirely above zero.
+
+No interval contained zero and no interval was entirely below zero.
+
+Thus all observed positive marginal-loss effects were stable under the
+primary held-out block-resampling procedure.
+
+### Sensitivity analysis
+
+The same qualitative result held for both alternative block lengths:
+
+\[
+L=500:
+\quad 30/30\text{ intervals entirely above zero}
+\]
+
+and
+
+\[
+L=2000:
+\quad 30/30\text{ intervals entirely above zero}.
+\]
+
+Thus the sign-level conclusion was insensitive to the tested block-length
+choices.
+
+### Small-effect examples
+
+The smallest observed marginal loss occurred for the 5% training condition
+on the \(5\to6\) transition:
+
+\[
+\Delta H_6=0.00551
+\]
+
+with primary 95% interval:
+
+\[
+[0.00333,\ 0.00835].
+\]
+
+For the full-data \(1\to2\) transition:
+
+\[
+\Delta H_2=0.05089
+\]
+
+with primary 95% interval:
+
+\[
+[0.01294,\ 0.08749].
+\]
+
+Although some individual bootstrap replicates for the smallest-margin
+conditions were non-positive, their 95% percentile intervals remained
+strictly above zero.
+
+### Interpretation limit
+
+These intervals quantify uncertainty produced by resampling contiguous
+blocks of the frozen held-out sequence.
+
+They do not include uncertainty from:
+
+- alternative training-set samples;
+- corpus choice;
+- preprocessing decisions;
+- vocabulary construction;
+- hyperparameter selection;
+- smoothing-estimator choice.
+
+Therefore this analysis strengthens the within-experiment evidence for
+generalisation reversals but does not establish that increasing context is
+universally harmful.
+
+### Decision
+
+The uncertainty analysis is frozen.
+
+The next stage will test whether the observed reversals remain under a
+preplanned lower-order interpolation estimator, addressing the possibility
+that the result is specific to fixed-order add-alpha smoothing.
