@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 
-
 def evaluate_model(
     model,
     eval_sequences: list[list[int]],
@@ -169,3 +168,116 @@ def evaluate_model(
         "U_k": u_k,
         "N": total_predictions,
     }
+
+def evaluate_per_target_losses(
+    model,
+    eval_sequences,
+    max_history_length=5,
+):
+    """
+    Return per-target negative log-probabilities for aligned evaluation.
+
+    The target positions are identical to evaluate_model().
+    """
+
+    k = model.n - 1
+
+    if max_history_length < 0:
+        raise ValueError(
+            "max_history_length must be non-negative."
+        )
+
+    if k > max_history_length:
+        raise ValueError(
+            "Model history length exceeds max_history_length."
+        )
+
+    losses = []
+
+    for sequence in eval_sequences:
+
+        for target_idx in range(
+            max_history_length,
+            len(sequence),
+        ):
+
+            target = sequence[target_idx]
+
+            if k == 0:
+                history = ()
+            else:
+                history = tuple(
+                    sequence[
+                        target_idx - k:
+                        target_idx
+                    ]
+                )
+
+            loss = -model.log_probability(
+                history,
+                target,
+            )
+
+            losses.append(
+                loss
+            )
+
+    return losses
+
+def evaluate_per_target_losses(
+    model,
+    eval_sequences: list[list[int]],
+    max_history_length: int = 5,
+) -> list[float]:
+    """
+    Return one negative log-probability for every aligned held-out target.
+
+    Target positions are identical to evaluate_model(), allowing exact
+    paired comparisons between different model orders.
+    """
+
+    k = model.n - 1
+
+    if max_history_length < 0:
+        raise ValueError(
+            "max_history_length must be non-negative."
+        )
+
+    if k > max_history_length:
+        raise ValueError(
+            f"Model requires history length {k}, "
+            f"but max_history_length is "
+            f"{max_history_length}."
+        )
+
+    losses = []
+
+    for sequence in eval_sequences:
+
+        for target_idx in range(
+            max_history_length,
+            len(sequence),
+        ):
+
+            target = sequence[target_idx]
+
+            if k == 0:
+                history = ()
+            else:
+                history = tuple(
+                    sequence[
+                        target_idx - k:
+                        target_idx
+                    ]
+                )
+
+            loss = -model.log_probability(
+                history,
+                target,
+            )
+
+            losses.append(
+                loss
+            )
+
+    return losses

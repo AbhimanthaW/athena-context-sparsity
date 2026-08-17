@@ -3,8 +3,11 @@ import math
 import pytest
 
 from src.ngram import NGramModel
-from src.evaluation import evaluate_model
 
+from src.evaluation import (
+    evaluate_model,
+    evaluate_per_target_losses,
+)
 
 def test_cross_entropy_and_perplexity():
     """
@@ -336,3 +339,47 @@ def test_empty_evaluation_returns_defined_sentinel_values():
 
     assert stats["U_k"] == 0.0
     assert stats["N"] == 0
+
+def test_per_target_losses_reproduce_cross_entropy():
+    vocabulary = {
+        "<UNK>": 0,
+        "a": 1,
+        "b": 2,
+    }
+
+    training = [
+        [1, 2, 1, 2, 1, 2]
+    ]
+
+    evaluation = [
+        [1, 2, 1, 2, 1, 2]
+    ]
+
+    model = NGramModel(
+        n=2,
+        alpha=0.1,
+        vocabulary=vocabulary,
+    )
+
+    model.fit(training)
+
+    aggregate = evaluate_model(
+        model,
+        evaluation,
+        max_history_length=1,
+    )
+
+    losses = evaluate_per_target_losses(
+        model,
+        evaluation,
+        max_history_length=1,
+    )
+
+    assert len(losses) == aggregate["N"]
+
+    assert (
+        sum(losses) / len(losses)
+        == pytest.approx(
+            aggregate["cross_entropy"]
+        )
+    )
