@@ -1,0 +1,4 @@
+block_length,clear_benefit,exact_fallback,uncertain_nonzero,clear_harm
+500,26,3,1,0
+1000,26,3,1,0
+2000,23,3,4,0

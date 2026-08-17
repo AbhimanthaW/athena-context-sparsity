@@ -1,0 +1,12 @@
+{
+  "clear_benefit": 26,
+  "clear_benefit_among_nonzero_lambda": 26,
+  "clear_harm": 0,
+  "exact_fallback": 3,
+  "interpolation_improved_over_original_high_order": 30,
+  "median_interpolated_delta_H": -0.00547653265332565,
+  "median_original_delta_H": 0.24220185005450195,
+  "n_transitions": 30,
+  "nonzero_lambda_conditions": 27,
+  "uncertain": 1
+}
